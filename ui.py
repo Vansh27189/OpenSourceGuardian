@@ -102,6 +102,7 @@ def generate_pdf(text):
     pdf.add_page()
     pdf.set_font("Helvetica", size=11)
     for line in text.split("\n"):
+        line = line.encode("latin-1", errors="replace").decode("latin-1")
         pdf.multi_cell(0, 8, text=line)
     return bytes(pdf.output())
 
