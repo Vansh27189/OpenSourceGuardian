@@ -108,7 +108,8 @@ def generate_pdf(text):
         if line.strip() == "":
             pdf.ln(4)  # FIX: empty lines use ln() instead of multi_cell to avoid crash
         else:
-            pdf.multi_cell(0, 7, text=line)
+            # FIX: new_x/new_y reset cursor to left margin after each line, prevents "no space" crash
+            pdf.multi_cell(pdf.epw, 7, text=line, new_x="LMARGIN", new_y="NEXT")
     return bytes(pdf.output())
 
 if st.session_state.scan_result:
