@@ -41,3 +41,21 @@ Keep the answer short and in Markdown"""
     prompt += f"User_question:{user_question}\n\n"
 
     return prompt
+
+
+# PDF REPORT FEATURE: new prompt that asks LLM to write a full audit report in plain text
+def build_report_prompt(repository_report):
+    prompt = """You are a security analyst. Write a professional security audit report.
+Use plain text only - no **, ##, or - symbols. Use UPPERCASE for section headers.
+Sections: EXECUTIVE SUMMARY, RISK OVERVIEW, PACKAGE FINDINGS, RECOMMENDATIONS.\n\n"""
+
+    for report in repository_report:
+        package = report["package"]
+        vulnerabilities = report["vulnerabilities"]
+        version = package["version"] or "unspecified"
+        prompt += f"Package: {package['name']} | Version: {version} | Vulnerabilities: {len(vulnerabilities)}\n"
+        for vuln in vulnerabilities[:2]:
+            summary = vuln['summary'][:120] if vuln['summary'] else "No description"
+            prompt += f"  {vuln['id']}: {summary}\n"
+
+    return prompt

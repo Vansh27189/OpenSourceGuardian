@@ -1,6 +1,8 @@
 import streamlit as st
 from app.services.repository_service import analyse_repo
 from app.llm.llm_client import ask_llm
+from app.llm.prompt import build_report_prompt  # PDF REPORT FEATURE: import new prompt
+from fpdf import FPDF  # PDF REPORT FEATURE: import pdf library
 
 st.set_page_config(page_title="OpenSourceGuardian", page_icon="🛡️", layout="wide")
 
@@ -94,6 +96,15 @@ with col2:
     if st.button("Clear Chat"):
         st.session_state.messages = []
 
+# PDF REPORT FEATURE: function to convert LLM text to downloadable PDF
+def generate_pdf(text):
+    pdf = FPDF()
+    pdf.add_page()
+    pdf.set_font("Helvetica", size=11)
+    for line in text.split("\n"):
+        pdf.multi_cell(0, 8, text=line)
+    return bytes(pdf.output())
+
 if st.session_state.scan_result:
     result = st.session_state.scan_result
 
@@ -104,8 +115,23 @@ if st.session_state.scan_result:
     m2.metric("Language", result['language'])
     m3.metric("Packages Checked", len(result['report']))
 
+    unpinned = [r for r in result['report'] if r['package']['version'] is None]
+    if unpinned:
+        st.warning(
+            f"⚠️ **{len(unpinned)} out of {len(result['report'])} packages have no version pinned.** "
+            f"OSV returns all historical advisories for unpinned packages, so vulnerability counts may appear much higher than what actually affects you. "
+            f"Pin versions in your requirements file and rescan for accurate results."
+        )
+
     with st.expander("View Raw Scan Report"):
         st.json(result)
+
+    # PDF REPORT FEATURE: button to generate and download PDF report
+    if st.button("📄 Export PDF Report"):
+        with st.spinner("Generating report..."):
+            report_text = ask_llm(result["report"], build_report_prompt(result["report"]))
+            pdf_bytes = generate_pdf(report_text)
+        st.download_button("⬇️ Download PDF", pdf_bytes, "security_report.pdf", "application/pdf")
 
     st.subheader("Ask Questions")
 
