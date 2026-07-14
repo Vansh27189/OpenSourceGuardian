@@ -1,0 +1,19 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# Environment variables - never commit secrets
+.env
+
+# Cloned repositories (can be large, regenerated at runtime)
+repositories/
+
+# Lock file (optional, add back if you want reproducible installs)
+uv.lock

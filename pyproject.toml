@@ -1,0 +1,15 @@
+[project]
+name = "opensourceguardian"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "gitpython>=3.1.50",
+    "langchain-groq>=1.1.3",
+    "langgraph>=1.2.9",
+    "python-dotenv>=1.2.2",
+    "requests>=2.34.2",
+    "rglob>=2.0.0",
+    "streamlit>=1.59.1",
+]
