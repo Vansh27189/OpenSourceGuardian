@@ -99,11 +99,16 @@ with col2:
 # PDF REPORT FEATURE: function to convert LLM text to downloadable PDF
 def generate_pdf(text):
     pdf = FPDF()
+    pdf.set_margins(15, 15, 15)        # FIX: added margins so text has space to render
+    pdf.set_auto_page_break(auto=True, margin=15)  # FIX: auto adds new page when content overflows
     pdf.add_page()
-    pdf.set_font("Helvetica", size=11)
+    pdf.set_font("Helvetica", size=10)  # FIX: smaller size gives more room per line
     for line in text.split("\n"):
-        line = line.encode("latin-1", errors="replace").decode("latin-1")
-        pdf.multi_cell(0, 8, text=line)
+        line = line.encode("latin-1", errors="replace").decode("latin-1")  # FIX: replaces unsupported unicode chars
+        if line.strip() == "":
+            pdf.ln(4)  # FIX: empty lines use ln() instead of multi_cell to avoid crash
+        else:
+            pdf.multi_cell(0, 7, text=line)
     return bytes(pdf.output())
 
 if st.session_state.scan_result:
